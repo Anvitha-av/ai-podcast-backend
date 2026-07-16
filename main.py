@@ -30,6 +30,14 @@ VOICE_MAP = {
     "English": {
         "voiceId": "Natalie",
         "locale": "en-US"
+    },
+    "Hindi": {
+        "voiceId": "hi-IN-sunaina",
+        "locale": "hi-IN"
+    },
+    "Kannada": {
+        "voiceId": "Ruby",
+        "locale": "kn-IN"
     }
 }
 
