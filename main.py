@@ -28,16 +28,8 @@ MURF_API_KEY = os.getenv("MURF_API_KEY")
 
 VOICE_MAP = {
     "English": {
-        "voiceId": "en-IN-anusha",
-        "locale": "en-IN"
-    },
-    "Hindi": {
-        "voiceId": "hi-IN-sunaina",
-        "locale": "hi-IN"
-    },
-    "Kannada": {
-        "voiceId": "hi-IN-namrita",
-        "locale": "kn-IN"
+        "voiceId": "Natalie",
+        "locale": "en-US"
     }
 }
 
