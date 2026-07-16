@@ -32,12 +32,12 @@ VOICE_MAP = {
         "locale": "en-US"
     },
     "Hindi": {
-        "voiceId": "hi-IN-sunaina",
-        "locale": "hi-IN"
+        "voiceId": "Natalie",
+        "locale": "en-US"
     },
     "Kannada": {
-        "voiceId": "Ruby",
-        "locale": "kn-IN"
+        "voiceId": "Natalie",
+        "locale": "en-US"
     }
 }
 
