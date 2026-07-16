@@ -7,6 +7,9 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from google import genai
 
+from google.genai.errors import ServerError
+import time
+
 load_dotenv()
 
 app = FastAPI(title="AI Podcast Backend")
@@ -67,11 +70,14 @@ def health():
     }
 
 @app.post("/generate")
+
+
+@app.post("/generate")
 def generate_podcast(request: PodcastRequest):
 
     try:
 
-        # Get voice and locale for selected language
+        # Get voice configuration
         voice = VOICE_MAP.get(request.language)
 
         if not voice:
@@ -87,16 +93,32 @@ Requirements:
 - Write ONLY in {request.language}.
 - Keep it under 2500 characters.
 - Make it engaging and conversational.
-- Suitable for podcast narration.
+- Make it sound like a real podcast host.
+- Do not use markdown.
 
 Topic:
 {request.text}
 """
 
-        response = client.models.generate_content(
-            model="gemini-3-flash-preview",
-            contents=prompt
-        )
+        # Retry Gemini request up to 3 times
+        response = None
+
+        for attempt in range(3):
+            try:
+                response = client.models.generate_content(
+                    model="gemini-3-flash-preview",
+                    contents=prompt
+                )
+                break
+
+            except ServerError:
+                if attempt == 2:
+                    raise HTTPException(
+                        status_code=503,
+                        detail="AI service is temporarily busy. Please try again in a few seconds."
+                    )
+
+                time.sleep(3)
 
         script = response.text
 
@@ -118,11 +140,19 @@ Topic:
 
         return murf_response.json()
 
-    
+    except HTTPException:
+        raise
+
+    except requests.exceptions.HTTPError as e:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Murf API Error: {str(e)}"
+        )
 
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(
-        status_code=500,
-        detail=str(e)
-    )
+            status_code=500,
+            detail=f"Server Error: {str(e)}"
+        )
