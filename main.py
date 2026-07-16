@@ -30,14 +30,6 @@ VOICE_MAP = {
     "English": {
         "voiceId": "Natalie",
         "locale": "en-US"
-    },
-    "Hindi": {
-        "voiceId": "Natalie",
-        "locale": "en-US"
-    },
-    "Kannada": {
-        "voiceId": "Natalie",
-        "locale": "en-US"
     }
 }
 
@@ -52,7 +44,6 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 
 class PodcastRequest(BaseModel):
     text: str
-    language: str
 
 
 @app.get("/")
@@ -78,27 +69,21 @@ def generate_podcast(request: PodcastRequest):
     try:
 
         # Get voice configuration
-        voice = VOICE_MAP.get(request.language)
-
-        if not voice:
-            raise HTTPException(
-                status_code=400,
-                detail="Unsupported language selected."
-            )
+        voice = VOICE_MAP["English"]
 
         prompt = f"""
-Generate a podcast script in {request.language}.
+            Generate a podcast script in English.
 
-Requirements:
-- Write ONLY in {request.language}.
-- Keep it under 2500 characters.
-- Make it engaging and conversational.
-- Make it sound like a real podcast host.
-- Do not use markdown.
+            Requirements:
+            - Keep it under 2500 characters.
+            - Make it engaging and conversational.
+            - Suitable for podcast narration.
 
-Topic:
-{request.text}
-"""
+            Topic:
+            {request.text}
+            """
+
+
 
         # Retry Gemini request up to 3 times
         response = None
