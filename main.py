@@ -62,8 +62,8 @@ Topic:
 """
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
+         model="gemini-3-flash-preview",
+         contents=prompt
         )
 
         script = response.text
@@ -86,11 +86,7 @@ Topic:
 
         murf_data = murf_response.json()
 
-        return {
-            "success": True,
-            "script": script,
-            "audio": murf_data
-        }
+        return murf_data
 
     except Exception as e:
         raise HTTPException(
