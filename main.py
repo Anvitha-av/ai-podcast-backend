@@ -1,5 +1,6 @@
 import os
 import requests
+import traceback
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -117,8 +118,11 @@ Topic:
 
         return murf_response.json()
 
+    
+
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+        status_code=500,
+        detail=str(e)
+    )
