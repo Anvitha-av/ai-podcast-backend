@@ -136,7 +136,12 @@ Topic:
             timeout=60
         )
 
-        murf_response.raise_for_status()
+        if not murf_response.ok:
+            print("Murf Error:", murf_response.text)
+            raise HTTPException(
+                status_code=400,
+                detail=murf_response.text
+    )
 
         return murf_response.json()
 
