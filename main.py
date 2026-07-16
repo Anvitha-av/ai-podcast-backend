@@ -22,6 +22,21 @@ app.add_middleware(
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 MURF_API_KEY = os.getenv("MURF_API_KEY")
 
+VOICE_MAP = {
+    "English": {
+        "voiceId": "Anusha",
+        "locale": "en-IN"
+    },
+    "Hindi": {
+        "voiceId": "Samar",
+        "locale": "hi-IN"
+    },
+    "Kannada": {
+        "voiceId": "Samar",
+        "locale": "kn-IN"
+    }
+}
+
 if not GEMINI_API_KEY:
     raise RuntimeError("GEMINI_API_KEY is missing!")
 
@@ -33,6 +48,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 
 class PodcastRequest(BaseModel):
     text: str
+    language: str
 
 
 @app.get("/")
@@ -49,21 +65,36 @@ def health():
         "status": "healthy"
     }
 
-
 @app.post("/generate")
 def generate_podcast(request: PodcastRequest):
 
     try:
+
+        # Get voice and locale for selected language
+        voice = VOICE_MAP.get(request.language)
+
+        if not voice:
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported language selected."
+            )
+
         prompt = f"""
-Generate a podcast script under 2500 characters suitable for text-to-speech narration.
+Generate a podcast script in {request.language}.
+
+Requirements:
+- Write ONLY in {request.language}.
+- Keep it under 2500 characters.
+- Make it engaging and conversational.
+- Suitable for podcast narration.
 
 Topic:
 {request.text}
 """
 
         response = client.models.generate_content(
-         model="gemini-3-flash-preview",
-         contents=prompt
+            model="gemini-3-flash-preview",
+            contents=prompt
         )
 
         script = response.text
@@ -76,17 +107,15 @@ Topic:
             },
             json={
                 "text": script,
-                "voiceId": "Natalie",
-                "locale": "en-US"
+                "voiceId": voice["voiceId"],
+                "locale": voice["locale"]
             },
             timeout=60
         )
 
         murf_response.raise_for_status()
 
-        murf_data = murf_response.json()
-
-        return murf_data
+        return murf_response.json()
 
     except Exception as e:
         raise HTTPException(
